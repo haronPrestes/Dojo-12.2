@@ -44,6 +44,11 @@ function App() {
             </label>
           </div>
         </fieldset>
+        <fieldset>
+          <label htmlFor="">
+            <textarea name="" id="" cols="30" rows="10"></textarea>
+          </label>
+        </fieldset>
       </form>
     </div>
   );
