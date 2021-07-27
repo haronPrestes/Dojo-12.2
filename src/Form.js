@@ -16,24 +16,16 @@ class Form extends React.Component {
       role: '',
       roleDescription: '',
       alert: false,
+      submitted: false,
     };
-
-    this.handleNameInput = this.handleNameInput.bind(this);
-  }
-
-  handleNameInput(event) {
-    const inputValue = event.target.value.toUpperCase();
-    this.setState({
-      name: inputValue,
-    })
   }
 
   handleAddressInput = (event) => {
     const cleanInput = event.target.value.replace(/[^\w\p{L}\s,-]/giu, '');
     this.setState({
       address: cleanInput,
-    })
-  }
+    });
+  };
 
   handleCityInput = (event) => {
     const { value } = event.target;
@@ -41,40 +33,103 @@ class Form extends React.Component {
     if (value.length > 0 && value[0].match(/[0-9]/)) {
       this.setState({
         city: '',
-      })
+      });
     }
-  }
+  };
 
   handleAlert = (event) => {
     if (!this.state.alert) {
-      alert('Preencha com cuidado esta informação.')
+      alert('Preencha com cuidado esta informação.');
       this.setState({
         alert: true,
-      })
+      });
     }
-  }
+  };
 
   handleInput = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
-    })
-  }
+    });
+  };
+
+  validateRequiredFields = () => {
+    Object.keys(this.state).forEach((stateInfo) => {
+      if (!this.state[stateInfo] && stateInfo !== 'submitted') {
+        throw new Error(`Erro! Preencha o campo ${stateInfo}`);
+      }
+    });
+  };
+
+  validateCPF = () => {
+    const { cpf } = this.state;
+    const cpfPattern = /[\d]/g;
+
+    if (!cpf.match(cpfPattern) || cpf.length !== 11) {
+      throw new Error('Erro! CPF inválido');
+    }
+  };
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+
+    try {
+      this.validateRequiredFields();
+      this.validateCPF();
+
+      this.setState({ submitted: true });
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  clearForm = (event) => {
+    event.preventDefault();
+
+    this.setState({
+      name: '',
+      email: '',
+      cpf: '',
+      address: '',
+      city: '',
+      state: '',
+      type: '',
+      resume: '',
+      role: '',
+      roleDescription: '',
+      alert: false,
+      submitted: false,
+    });
+  };
 
   render() {
-    const { name, email, cpf, address, city, state, resume, role, roleDescription } = this.state;
+    const {
+      name,
+      email,
+      cpf,
+      address,
+      city,
+      state,
+      resume,
+      role,
+      roleDescription,
+      submitted,
+    } = this.state;
 
     return (
-        <form>
+      <div>
+        <form onSubmit={this.handleSubmit}>
           <fieldset>
             <label htmlFor="name">
               Nome:
-              <input 
+              <input
                 type="text"
                 name="name"
                 id="name"
                 maxLength="40"
-                value={ name }
-                onChange={(event) => this.setState({ name: event.target.value.toUpperCase() })}
+                value={name}
+                onChange={(event) =>
+                  this.setState({ name: event.target.value.toUpperCase() })
+                }
               />
             </label>
             <label htmlFor="email">
@@ -84,8 +139,8 @@ class Form extends React.Component {
                 name="email"
                 id="email"
                 maxLength="50"
-                value={ email }
-                onChange={ this.handleInput }
+                value={email}
+                onChange={this.handleInput}
               />
             </label>
             <label htmlFor="cpf">
@@ -95,8 +150,8 @@ class Form extends React.Component {
                 name="cpf"
                 id="cpf"
                 maxLength="11"
-                value={ cpf }
-                onChange={ this.handleInput }
+                value={cpf}
+                onChange={this.handleInput}
               />
             </label>
             <label htmlFor="address">
@@ -106,8 +161,8 @@ class Form extends React.Component {
                 name="address"
                 id="address"
                 maxLength="200"
-                value={ address }
-                onChange={ this.handleAddressInput }
+                value={address}
+                onChange={this.handleAddressInput}
               />
             </label>
             <label htmlFor="city">
@@ -117,14 +172,19 @@ class Form extends React.Component {
                 name="city"
                 id="city"
                 maxLength="28"
-                value={ city }
-                onChange={ this.handleInput }
-                onBlur={ this.handleCityInput }
+                value={city}
+                onChange={this.handleInput}
+                onBlur={this.handleCityInput}
               />
             </label>
             <label htmlFor="state">
               Estado:
-              <select name="state" id="state" value={ state } onChange={ this.handleInput }>
+              <select
+                name="state"
+                id="state"
+                value={state}
+                onChange={this.handleInput}
+              >
                 <option value="PE">PE</option>
                 <option value="MG">MG</option>
                 <option value="SP">SP</option>
@@ -137,7 +197,7 @@ class Form extends React.Component {
                   id="house"
                   name="type"
                   value="house"
-                  onClick={ this.handleInput }
+                  onClick={this.handleInput}
                 />
                 casa
               </label>
@@ -147,7 +207,7 @@ class Form extends React.Component {
                   id="apartment"
                   name="type"
                   value="apartment"
-                  onClick={ this.handleInput }
+                  onClick={this.handleInput}
                 />
                 apartamento
               </label>
@@ -162,8 +222,8 @@ class Form extends React.Component {
                 cols="30"
                 rows="10"
                 maxLength="1000"
-                value={ resume }
-                onChange={ this.handleInput }
+                value={resume}
+                onChange={this.handleInput}
               />
             </label>
             <label htmlFor="role">
@@ -174,9 +234,9 @@ class Form extends React.Component {
                 cols="30"
                 rows="10"
                 maxLength="40"
-                value={ role }
-                onChange={ this.handleInput }
-                onMouseEnter={ this.handleAlert }
+                value={role}
+                onChange={this.handleInput}
+                onMouseEnter={this.handleAlert}
               />
             </label>
             <label htmlFor="role-description">
@@ -186,15 +246,29 @@ class Form extends React.Component {
                 name="roleDescription"
                 id="role-description"
                 maxLength="500"
-                value={ roleDescription }
-                onChange={ this.handleInput }
+                value={roleDescription}
+                onChange={this.handleInput}
               />
             </label>
           </fieldset>
 
           <button type="submit">Enviar</button>
-          <button>Limpar</button>
+          <button onClick={this.clearForm}>Limpar</button>
         </form>
+        {submitted && (
+          <div>
+            <p>{`Nome: ${name}`}</p>
+            <p>{`Email: ${email}`}</p>
+            <p>{`CPF: ${cpf}`}</p>
+            <p>{`Endereço: ${address}`}</p>
+            <p>{`Cidade: ${city}`}</p>
+            <p>{`Estado: ${state}`}</p>
+            <p>{`Currículo: ${resume}`}</p>
+            <p>{`Cargo: ${role}`}</p>
+            <p>{`Descrição do cargo: ${roleDescription}`}</p>
+          </div>
+        )}
+      </div>
     );
   }
 }
